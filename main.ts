@@ -1,9 +1,11 @@
-//% color="#af1015" weight=200 block="Idea Kit: Maker"
+//% color="#af1015" weight=200 block="IDEA KIT: Maker"
 namespace IdeaKitMaker {
   const PCA9685_ADDRESS = 0x40;
   const PRESCALE = 0xfe;
   const LED0_ON_L = 0x06;
   const MODE1 = 0x00;
+  let sonaloop = 0
+  let sonaTrack = [0,0,0,0,0,0,0,0,0,0]
   export enum Motors {
     M1A = 0x1,
     M1B = 0x2,
@@ -98,6 +100,42 @@ namespace IdeaKitMaker {
   //% block="Ultrasonic distance (cm) trig %trig|echo %echo"
   export function sonarDistance(trig: DigitalPin, echo: DigitalPin): number {
     return sonar.ping(trig, echo, PingUnit.Centimeters);
+  }
+
+  //% block="Ultrasonic 10 loop (cm) trig %trig|echo %echo|distance(cm) %distance|loop %loop"
+  export function sonarDistanceLoop(trig: DigitalPin, echo: DigitalPin,distance:number):boolean {
+    const sona = sonar.ping(trig, echo, PingUnit.Centimeters);
+    sonaTrack.shift()
+    if (sona <= distance) {
+      sonaTrack.push(1)
+    } else {
+      sonaTrack.push(0)
+    }
+
+    const sum = sonaTrack.reduce((accumulator, current) => {
+      return accumulator + current;
+    }, 0);
+
+    // const sum = sonaTrack.reduce((prev:number, curr:number) => {return (prev + curr)})
+    
+    if (sum >= 5) {
+      return true
+    } else {
+      return false
+    }
+
+    // return sum
+    // if (sona <= distance && sonaloop < loop) {
+    //   sonaloop++
+    // } else {
+    //   sonaloop = 0
+    // }
+    // if (sonaloop == loop) {
+    //   return true
+    // } else {
+    //   return false
+    // }
+    // return sum
   }
     
   //% block="Servo|%index|degree %degree"
